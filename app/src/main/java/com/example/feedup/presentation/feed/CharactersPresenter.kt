@@ -3,6 +3,7 @@ package com.example.feedup.presentation.feed
 import android.util.Log
 import com.example.feedup.data.network.ApiClient
 import com.example.feedup.model.TaskItem
+import com.example.feedup.model.TaskPatchRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,7 +39,11 @@ class CharactersPresenter : CharacterContract.Presenter {
             ) {
                 if (response.isSuccessful) {
                     val characters = response.body().orEmpty()
-                    view?.showCharacters(characters)
+                    if (characters.isEmpty()) {
+                        view?.showEmpty()
+                    } else {
+                        view?.showCharacters(characters)
+                    }
                 } else {
                     view?.showError("Problem: ${response.code()}")
                 }
@@ -55,8 +60,13 @@ class CharactersPresenter : CharacterContract.Presenter {
     }
 
     override fun onPostClicked(post: TaskItem) {
-        view?.navigateToDetails(post.id.toInt())
+        view?.navigateToDetails(post.id)
     }
+
+    override fun onPostLongClicked(post: TaskItem) {
+        deleteTask(post.id)
+    }
+
     override fun onSaveClicked(title: String, description: String) {
         if (title.isBlank() || description.isBlank()) {
             view?.showError("Fields must not be empty")
@@ -75,30 +85,57 @@ class CharactersPresenter : CharacterContract.Presenter {
     override fun createTask(task: TaskItem) {
         createTask = ApiClient.characterApi.createTask(task)
 
-
         createTask?.enqueue(object : Callback<TaskItem> {
-            override fun onResponse(
-                p0: Call<TaskItem?>,
-                p1: Response<TaskItem?>
-            ) {
-                Log.e("DATA", "onResponse: ${p1.isSuccessful}")
+            override fun onResponse(call: Call<TaskItem>, response: Response<TaskItem>) {
+                Log.e("DATA", "onResponse: ${response.isSuccessful}")
+                if (!response.isSuccessful) {
+                    view?.showError("Problem: ${response.code()}")
+                    return
+                }
+                loadCharacters()
             }
 
-            override fun onFailure(
-                p0: Call<TaskItem?>,
-                p1: Throwable
-            ) {
-                view?.showError(p1.message ?: "Unknown error")
-
+            override fun onFailure(call: Call<TaskItem>, t: Throwable) {
+                view?.showError(t.message ?: "Unknown error")
             }
-
         })
     }
 
-
-
     override fun onCreateClicked() {
         view?.navigateToCreate()
+    }
+
+    override fun onDetailsSaveClicked(
+        taskId: String,
+        oldTitle: String,
+        oldDescription: String,
+        newTitle: String,
+        newDescription: String
+    ) {
+        val titleChanged = oldTitle != newTitle
+        val descriptionChanged = oldDescription != newDescription
+
+        if (!titleChanged && !descriptionChanged) {
+            view?.showError("Nothing changed")
+            return
+        }
+
+        if (titleChanged && descriptionChanged) {
+            updateTask(
+                TaskItem(
+                    id = taskId,
+                    title = newTitle,
+                    description = newDescription
+                )
+            )
+            return
+        }
+
+        patchTask(
+            taskId = taskId,
+            title = newTitle.takeIf { titleChanged },
+            description = newDescription.takeIf { descriptionChanged }
+        )
     }
 
     fun updateTask(task: TaskItem) {
@@ -111,6 +148,7 @@ class CharactersPresenter : CharacterContract.Presenter {
                     return
                 }
                 Log.d("DATA", "PUT success: ${response.body()}")
+                loadCharacters()
             }
 
             override fun onFailure(call: Call<TaskItem>, t: Throwable) {
@@ -120,15 +158,15 @@ class CharactersPresenter : CharacterContract.Presenter {
     }
 
     fun patchTask(taskId: String, title: String? = null, description: String? = null) {
-        val patchBody = buildMap<String, String> {
-            title?.let { put("title", it) }
-            description?.let { put("description", it) }
-        }
-
-        if (patchBody.isEmpty()) {
+        if (title == null && description == null) {
             view?.showError("Nothing to patch")
             return
         }
+
+        val patchBody = TaskPatchRequest(
+            title = title,
+            description = description
+        )
 
         patchTask = ApiClient.characterApi.patchTask(taskId, patchBody)
 
@@ -139,6 +177,7 @@ class CharactersPresenter : CharacterContract.Presenter {
                     return
                 }
                 Log.d("DATA", "PATCH success: ${response.body()}")
+                loadCharacters()
             }
 
             override fun onFailure(call: Call<TaskItem>, t: Throwable) {
@@ -157,6 +196,7 @@ class CharactersPresenter : CharacterContract.Presenter {
                     return
                 }
                 Log.d("DATA", "DELETE success for id=$taskId")
+                loadCharacters()
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {
