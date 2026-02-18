@@ -7,7 +7,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.feedup.R
 import com.example.feedup.databinding.FragmentFeedBinding
-import com.example.feedup.model.Result
+import com.example.feedup.model.TaskItem
 
 class FeedFragment : Fragment(R.layout.fragment_feed), CharacterContract.View {
 
@@ -38,13 +38,15 @@ class FeedFragment : Fragment(R.layout.fragment_feed), CharacterContract.View {
         binding.errorLayout.visibility = View.GONE
     }
 
-    override fun showCharacters(posts: List<Result>) {
+    override fun showCharacters(posts: List<TaskItem>) {
         adapter.submitList(posts)
         binding.progress.visibility = View.GONE
         binding.recycler.visibility = View.VISIBLE
         binding.emptyText.visibility = View.GONE
         binding.errorLayout.visibility = View.GONE
     }
+
+
 
     override fun showEmpty() {
         binding.progress.visibility = View.GONE
