@@ -21,6 +21,9 @@ interface CharacterContract {
         fun onPostClicked(post: TaskItem)
 
         fun createTask(task: TaskItem)
+        fun updateTaskPut(id: String, task: TaskItem)
+        fun updateTaskPatch(id: String, fields: Map<String, String>)
+        fun deleteTask(id: String)
         fun onSaveClicked(title: String, description: String)
 
         fun onCreateClicked()
