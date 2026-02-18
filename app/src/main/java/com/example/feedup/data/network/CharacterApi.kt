@@ -1,6 +1,7 @@
 package com.example.feedup.data.network
 
 import com.example.feedup.model.TaskItem
+import com.example.feedup.model.TaskPatchRequest
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
