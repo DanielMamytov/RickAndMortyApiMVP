@@ -1,13 +1,11 @@
 package com.example.feedup.presentation.feed
 
 import android.util.Log
-import android.widget.Toast
 import com.example.feedup.data.network.ApiClient
 import com.example.feedup.model.TaskItem
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.math.log
 
 class CharactersPresenter : CharacterContract.Presenter {
 
@@ -16,6 +14,9 @@ class CharactersPresenter : CharacterContract.Presenter {
     private var currentCall: Call<List<TaskItem>>? = null
 
     private var createTask: Call<TaskItem>? = null
+    private var updateTask: Call<TaskItem>? = null
+    private var patchTask: Call<TaskItem>? = null
+    private var deleteTask: Call<Unit>? = null
 
     override fun attach(view: CharacterContract.View) {
         this.view = view
@@ -98,5 +99,69 @@ class CharactersPresenter : CharacterContract.Presenter {
 
     override fun onCreateClicked() {
         view?.navigateToCreate()
+    }
+
+    fun updateTask(task: TaskItem) {
+        updateTask = ApiClient.characterApi.updateTask(task.id, task)
+
+        updateTask?.enqueue(object : Callback<TaskItem> {
+            override fun onResponse(call: Call<TaskItem>, response: Response<TaskItem>) {
+                if (!response.isSuccessful) {
+                    view?.showError("Problem: ${response.code()}")
+                    return
+                }
+                Log.d("DATA", "PUT success: ${response.body()}")
+            }
+
+            override fun onFailure(call: Call<TaskItem>, t: Throwable) {
+                view?.showError(t.message ?: "Unknown error")
+            }
+        })
+    }
+
+    fun patchTask(taskId: String, title: String? = null, description: String? = null) {
+        val patchBody = buildMap<String, String> {
+            title?.let { put("title", it) }
+            description?.let { put("description", it) }
+        }
+
+        if (patchBody.isEmpty()) {
+            view?.showError("Nothing to patch")
+            return
+        }
+
+        patchTask = ApiClient.characterApi.patchTask(taskId, patchBody)
+
+        patchTask?.enqueue(object : Callback<TaskItem> {
+            override fun onResponse(call: Call<TaskItem>, response: Response<TaskItem>) {
+                if (!response.isSuccessful) {
+                    view?.showError("Problem: ${response.code()}")
+                    return
+                }
+                Log.d("DATA", "PATCH success: ${response.body()}")
+            }
+
+            override fun onFailure(call: Call<TaskItem>, t: Throwable) {
+                view?.showError(t.message ?: "Unknown error")
+            }
+        })
+    }
+
+    fun deleteTask(taskId: String) {
+        deleteTask = ApiClient.characterApi.deleteTask(taskId)
+
+        deleteTask?.enqueue(object : Callback<Unit> {
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                if (!response.isSuccessful) {
+                    view?.showError("Problem: ${response.code()}")
+                    return
+                }
+                Log.d("DATA", "DELETE success for id=$taskId")
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                view?.showError(t.message ?: "Unknown error")
+            }
+        })
     }
 }
