@@ -25,7 +25,7 @@ interface CharacterApi {
     fun updateTask(@Path("id") id: String, @Body task: TaskItem): Call<TaskItem>
 
     @PATCH("task/{id}")
-    fun patchTask(@Path("id") id: String, task: Map<String, String>): Call<TaskItem>
+    fun patchTask(@Path("id") id: String, @Body task: TaskPatchRequest): Call<TaskItem>
 
     @DELETE("task/{id}")
     fun deleteTask(@Path("id") id: String): Call<Unit>

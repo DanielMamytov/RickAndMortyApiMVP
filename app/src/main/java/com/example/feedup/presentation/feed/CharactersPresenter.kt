@@ -3,6 +3,7 @@ package com.example.feedup.presentation.feed
 import android.util.Log
 import com.example.feedup.data.network.ApiClient
 import com.example.feedup.model.TaskItem
+import com.example.feedup.model.TaskPatchRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -157,15 +158,15 @@ class CharactersPresenter : CharacterContract.Presenter {
     }
 
     fun patchTask(taskId: String, title: String? = null, description: String? = null) {
-        val patchBody = buildMap<String, String> {
-            title?.let { put("title", it) }
-            description?.let { put("description", it) }
-        }
-
-        if (patchBody.isEmpty()) {
+        if (title == null && description == null) {
             view?.showError("Nothing to patch")
             return
         }
+
+        val patchBody = TaskPatchRequest(
+            title = title,
+            description = description
+        )
 
         patchTask = ApiClient.characterApi.patchTask(taskId, patchBody)
 
