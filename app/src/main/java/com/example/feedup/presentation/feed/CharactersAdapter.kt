@@ -5,13 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.feedup.R
-import com.example.feedup.databinding.CharacterItemBinding
 import com.example.feedup.databinding.ItemPostBinding
 import com.example.feedup.model.TaskItem
 
-class CharactersAdapter : ListAdapter<TaskItem, CharactersAdapter.CharacterViewHolder>(DiffCallback) {
+class CharactersAdapter(
+    private val onItemClick: (TaskItem) -> Unit,
+    private val onItemLongClick: (TaskItem) -> Unit
+) : ListAdapter<TaskItem, CharactersAdapter.CharacterViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterViewHolder {
         val binding = ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -19,14 +19,23 @@ class CharactersAdapter : ListAdapter<TaskItem, CharactersAdapter.CharacterViewH
     }
 
     override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), onItemClick, onItemLongClick)
     }
 
     class CharacterViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: TaskItem) {
+        fun bind(
+            item: TaskItem,
+            onItemClick: (TaskItem) -> Unit,
+            onItemLongClick: (TaskItem) -> Unit
+        ) {
             binding.titleText.text = item.title
             binding.bodyText.text = item.description
+            binding.root.setOnClickListener { onItemClick(item) }
+            binding.root.setOnLongClickListener {
+                onItemLongClick(item)
+                true
+            }
 
 //            Glide.with(binding.ivAvatar)
 //                .load(character.image)

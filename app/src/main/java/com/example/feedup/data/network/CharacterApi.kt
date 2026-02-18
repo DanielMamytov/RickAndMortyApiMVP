@@ -15,6 +15,9 @@ interface CharacterApi {
     @GET("task")
     fun getAllCharacters(): Call<List<TaskItem>>
 
+    @GET("task/{id}")
+    fun getTaskById(@Path("id") id: String): Call<TaskItem>
+
     @POST("task")
     fun createTask(@Body task: TaskItem): Call<TaskItem>
 

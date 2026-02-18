@@ -1,8 +1,8 @@
 package com.example.feedup.presentation.feed
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.feedup.R
@@ -20,7 +20,10 @@ class FeedFragment : Fragment(R.layout.fragment_feed), CharacterContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentFeedBinding.bind(view)
 
-        adapter = CharactersAdapter()
+        adapter = CharactersAdapter(
+            onItemClick = { presenter.onPostClicked(it) },
+            onItemLongClick = { presenter.onPostLongClicked(it) }
+        )
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
@@ -29,6 +32,12 @@ class FeedFragment : Fragment(R.layout.fragment_feed), CharacterContract.View {
 
         presenter.attach(this)
         presenter.loadCharacters()
+    }
+
+    override fun onDestroyView() {
+        presenter.detach()
+        _binding = null
+        super.onDestroyView()
     }
 
     override fun showLoading() {
@@ -46,8 +55,6 @@ class FeedFragment : Fragment(R.layout.fragment_feed), CharacterContract.View {
         binding.errorLayout.visibility = View.GONE
     }
 
-
-
     override fun showEmpty() {
         binding.progress.visibility = View.GONE
         binding.recycler.visibility = View.GONE
@@ -59,16 +66,15 @@ class FeedFragment : Fragment(R.layout.fragment_feed), CharacterContract.View {
         binding.progress.visibility = View.GONE
         binding.recycler.visibility = View.GONE
         binding.emptyText.visibility = View.GONE
-        binding.errorLayout.visibility = View.VISIBLE    }
+        binding.errorLayout.visibility = View.VISIBLE
+    }
 
-    override fun navigateToDetails(postId: Int) {
-        val bundle = Bundle().apply { putInt("postId", postId) }
+    override fun navigateToDetails(postId: String) {
+        val bundle = Bundle().apply { putString("postId", postId) }
         findNavController().navigate(R.id.action_feedFragment_to_detailsFragment, bundle)
     }
 
     override fun navigateToCreate() {
         findNavController().navigate(R.id.action_feedFragment_to_createEditFragment)
     }
-
-
 }
