@@ -38,7 +38,11 @@ class CharactersPresenter : CharacterContract.Presenter {
             ) {
                 if (response.isSuccessful) {
                     val characters = response.body().orEmpty()
-                    view?.showCharacters(characters)
+                    if (characters.isEmpty()) {
+                        view?.showEmpty()
+                    } else {
+                        view?.showCharacters(characters)
+                    }
                 } else {
                     view?.showError("Problem: ${response.code()}")
                 }
@@ -55,8 +59,13 @@ class CharactersPresenter : CharacterContract.Presenter {
     }
 
     override fun onPostClicked(post: TaskItem) {
-        view?.navigateToDetails(post.id.toInt())
+        view?.navigateToDetails(post.id)
     }
+
+    override fun onPostLongClicked(post: TaskItem) {
+        deleteTask(post.id)
+    }
+
     override fun onSaveClicked(title: String, description: String) {
         if (title.isBlank() || description.isBlank()) {
             view?.showError("Fields must not be empty")
@@ -75,30 +84,57 @@ class CharactersPresenter : CharacterContract.Presenter {
     override fun createTask(task: TaskItem) {
         createTask = ApiClient.characterApi.createTask(task)
 
-
         createTask?.enqueue(object : Callback<TaskItem> {
-            override fun onResponse(
-                p0: Call<TaskItem?>,
-                p1: Response<TaskItem?>
-            ) {
-                Log.e("DATA", "onResponse: ${p1.isSuccessful}")
+            override fun onResponse(call: Call<TaskItem>, response: Response<TaskItem>) {
+                Log.e("DATA", "onResponse: ${response.isSuccessful}")
+                if (!response.isSuccessful) {
+                    view?.showError("Problem: ${response.code()}")
+                    return
+                }
+                loadCharacters()
             }
 
-            override fun onFailure(
-                p0: Call<TaskItem?>,
-                p1: Throwable
-            ) {
-                view?.showError(p1.message ?: "Unknown error")
-
+            override fun onFailure(call: Call<TaskItem>, t: Throwable) {
+                view?.showError(t.message ?: "Unknown error")
             }
-
         })
     }
 
-
-
     override fun onCreateClicked() {
         view?.navigateToCreate()
+    }
+
+    override fun onDetailsSaveClicked(
+        taskId: String,
+        oldTitle: String,
+        oldDescription: String,
+        newTitle: String,
+        newDescription: String
+    ) {
+        val titleChanged = oldTitle != newTitle
+        val descriptionChanged = oldDescription != newDescription
+
+        if (!titleChanged && !descriptionChanged) {
+            view?.showError("Nothing changed")
+            return
+        }
+
+        if (titleChanged && descriptionChanged) {
+            updateTask(
+                TaskItem(
+                    id = taskId,
+                    title = newTitle,
+                    description = newDescription
+                )
+            )
+            return
+        }
+
+        patchTask(
+            taskId = taskId,
+            title = newTitle.takeIf { titleChanged },
+            description = newDescription.takeIf { descriptionChanged }
+        )
     }
 
     fun updateTask(task: TaskItem) {
@@ -111,6 +147,7 @@ class CharactersPresenter : CharacterContract.Presenter {
                     return
                 }
                 Log.d("DATA", "PUT success: ${response.body()}")
+                loadCharacters()
             }
 
             override fun onFailure(call: Call<TaskItem>, t: Throwable) {
@@ -139,6 +176,7 @@ class CharactersPresenter : CharacterContract.Presenter {
                     return
                 }
                 Log.d("DATA", "PATCH success: ${response.body()}")
+                loadCharacters()
             }
 
             override fun onFailure(call: Call<TaskItem>, t: Throwable) {
@@ -157,6 +195,7 @@ class CharactersPresenter : CharacterContract.Presenter {
                     return
                 }
                 Log.d("DATA", "DELETE success for id=$taskId")
+                loadCharacters()
             }
 
             override fun onFailure(call: Call<Unit>, t: Throwable) {

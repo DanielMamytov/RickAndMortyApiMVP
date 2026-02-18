@@ -1,3 +1,5 @@
+package com.example.feedup.presentation.create
+
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -26,7 +28,6 @@ class CreateEditFragment :
             val description = binding.editDescription.text.toString()
 
             presenter.onSaveClicked(title, description)
-
             findNavController().navigateUp()
         }
     }
@@ -37,27 +38,15 @@ class CreateEditFragment :
         super.onDestroyView()
     }
 
-    override fun showLoading() {
-        TODO("Not yet implemented")
-    }
+    override fun showLoading() = Unit
 
-    override fun showCharacters(posts: List<TaskItem>) {
-        TODO("Not yet implemented")
-    }
+    override fun showCharacters(posts: List<TaskItem>) = Unit
 
-    override fun showEmpty() {
-        TODO("Not yet implemented")
-    }
+    override fun showEmpty() = Unit
 
-    override fun showError(message: String) {
-        // Toast / Snackbar
-    }
+    override fun showError(message: String) = Unit
 
-    override fun navigateToDetails(postId: Int) {
-        TODO("Not yet implemented")
-    }
+    override fun navigateToDetails(postId: String) = Unit
 
-    override fun navigateToCreate() {
-        TODO("Not yet implemented")
-    }
+    override fun navigateToCreate() = Unit
 }

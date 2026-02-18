@@ -22,7 +22,7 @@
         android:label="DetailsFragment" />
     <fragment
         android:id="@+id/createEditFragment"
-        android:name="CreateEditFragment"
+        android:name="com.example.feedup.presentation.create.CreateEditFragment"
         android:label="CreateEditFragment" />
 
 </navigation>
