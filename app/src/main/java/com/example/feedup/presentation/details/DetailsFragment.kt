@@ -3,23 +3,18 @@ package com.example.feedup.presentation.details
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.feedup.R
-import com.example.feedup.data.network.ApiClient
 import com.example.feedup.databinding.FragmentDetailsBinding
-import com.example.feedup.model.TaskItem
-import com.example.feedup.presentation.feed.CharacterContract
-import com.example.feedup.presentation.feed.CharactersPresenter
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.feedup.presentation.feed.CharactersViewModel
 
-class DetailsFragment : Fragment(R.layout.fragment_details), CharacterContract.View {
+class DetailsFragment : Fragment(R.layout.fragment_details) {
 
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
-    private val presenter = CharactersPresenter()
+    private val viewModel: CharactersViewModel by viewModels()
 
     private var taskId: String = ""
     private var initialTitle: String = ""
@@ -28,66 +23,42 @@ class DetailsFragment : Fragment(R.layout.fragment_details), CharacterContract.V
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDetailsBinding.bind(view)
-        presenter.attach(this)
 
         taskId = arguments?.getString("postId").orEmpty()
-
-        loadTask()
+        observeViewModel()
+        viewModel.loadTask(taskId)
 
         binding.buttonSave.setOnClickListener {
-            presenter.onDetailsSaveClicked(
+            viewModel.onDetailsSaveClicked(
                 taskId = taskId,
                 oldTitle = initialTitle,
                 oldDescription = initialDescription,
                 newTitle = binding.editTitle.text.toString(),
                 newDescription = binding.editDescription.text.toString()
             )
-            findNavController().navigateUp()
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.selectedTask.observe(viewLifecycleOwner) { task ->
+            if (task != null) {
+                initialTitle = task.title
+                initialDescription = task.description
+                binding.editTitle.setText(task.title)
+                binding.editDescription.setText(task.description)
+            }
+        }
+
+        viewModel.actionCompleted.observe(viewLifecycleOwner) { completed ->
+            if (completed) {
+                findNavController().navigateUp()
+                viewModel.onActionCompletedConsumed()
+            }
         }
     }
 
     override fun onDestroyView() {
-        presenter.detach()
         _binding = null
         super.onDestroyView()
     }
-
-    private fun loadTask() {
-        if (taskId.isBlank()) {
-            showError("Task id is empty")
-            return
-        }
-
-        ApiClient.characterApi.getTaskById(taskId).enqueue(object : Callback<TaskItem> {
-            override fun onResponse(call: Call<TaskItem>, response: Response<TaskItem>) {
-                if (!response.isSuccessful) {
-                    showError("Problem: ${response.code()}")
-                    return
-                }
-
-                val task = response.body() ?: return
-                initialTitle = task.title
-                initialDescription = task.description
-
-                binding.editTitle.setText(task.title)
-                binding.editDescription.setText(task.description)
-            }
-
-            override fun onFailure(call: Call<TaskItem>, t: Throwable) {
-                showError(t.message ?: "Unknown error")
-            }
-        })
-    }
-
-    override fun showLoading() = Unit
-
-    override fun showCharacters(posts: List<TaskItem>) = Unit
-
-    override fun showEmpty() = Unit
-
-    override fun showError(message: String) = Unit
-
-    override fun navigateToDetails(postId: String) = Unit
-
-    override fun navigateToCreate() = Unit
 }
