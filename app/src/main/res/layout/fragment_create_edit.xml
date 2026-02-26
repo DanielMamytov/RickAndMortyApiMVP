@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:paddingHorizontal="20dp"
-    tools:context=".presentation.create.CreateEditFragment">
+    tools:context=".ui.fragments.create.CreateEditFragment">
 
     <EditText
         android:id="@+id/title"

@@ -1,4 +1,4 @@
-package com.example.feedup.presentation.feed
+package com.example.feedup.ui.fragments.feed
 
 import android.os.Bundle
 import android.view.View
@@ -8,6 +8,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.feedup.R
 import com.example.feedup.databinding.FragmentFeedBinding
+import com.example.feedup.ui.adapters.CharactersAdapter
+import com.example.feedup.ui.viewmodels.CharactersViewModel
 
 class FeedFragment : Fragment(R.layout.fragment_feed) {
 
@@ -32,12 +34,18 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
         observeViewModel()
 
-        if (savedInstanceState == null) {
-            viewModel.loadCharacters()
+        binding.getData.setOnClickListener {
+
+            if (savedInstanceState == null) {
+                viewModel.loadCharacters()
+            }
         }
+
     }
 
     private fun observeViewModel() {
+
+
         viewModel.characters.observe(viewLifecycleOwner) { posts ->
             adapter.submitList(posts)
             if (posts.isNotEmpty()) {

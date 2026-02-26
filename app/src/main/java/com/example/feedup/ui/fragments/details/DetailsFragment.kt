@@ -1,4 +1,4 @@
-package com.example.feedup.presentation.details
+package com.example.feedup.ui.fragments.details
 
 import android.os.Bundle
 import android.view.View
@@ -7,7 +7,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.feedup.R
 import com.example.feedup.databinding.FragmentDetailsBinding
-import com.example.feedup.presentation.feed.CharactersViewModel
+import com.example.feedup.ui.viewmodels.CharactersViewModel
 
 class DetailsFragment : Fragment(R.layout.fragment_details) {
 

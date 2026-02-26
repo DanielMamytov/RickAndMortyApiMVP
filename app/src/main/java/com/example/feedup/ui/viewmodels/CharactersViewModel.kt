@@ -1,4 +1,4 @@
-package com.example.feedup.presentation.feed
+package com.example.feedup.ui.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

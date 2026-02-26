@@ -1,4 +1,4 @@
-package com.example.feedup.presentation.feed
+package com.example.feedup.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
