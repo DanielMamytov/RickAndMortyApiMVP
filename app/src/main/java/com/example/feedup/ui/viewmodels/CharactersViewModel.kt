@@ -3,14 +3,17 @@ package com.example.feedup.ui.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.feedup.data.network.ApiClient
+import com.example.feedup.data.network.CharacterApi
 import com.example.feedup.model.TaskItem
 import com.example.feedup.model.TaskPatchRequest
+import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class CharactersViewModel : ViewModel() {
+@HiltViewModel
+class CharactersViewModel @Inject constructor(private val characterApi: CharacterApi) : ViewModel() {
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -47,7 +50,7 @@ class CharactersViewModel : ViewModel() {
         _isLoading.value = true
         _errorMessage.value = null
 
-        currentCall = ApiClient.characterApi.getAllCharacters()
+        currentCall = characterApi.getAllCharacters()
         currentCall?.enqueue(object : Callback<List<TaskItem>> {
             override fun onResponse(call: Call<List<TaskItem>>, response: Response<List<TaskItem>>) {
                 _isLoading.value = false
@@ -92,7 +95,7 @@ class CharactersViewModel : ViewModel() {
     }
 
     private fun createTask(task: TaskItem) {
-        createTaskCall = ApiClient.characterApi.createTask(task)
+        createTaskCall = characterApi.createTask(task)
         createTaskCall?.enqueue(object : Callback<TaskItem> {
             override fun onResponse(call: Call<TaskItem>, response: Response<TaskItem>) {
                 if (!response.isSuccessful) {
@@ -115,7 +118,7 @@ class CharactersViewModel : ViewModel() {
             return
         }
 
-        taskByIdCall = ApiClient.characterApi.getTaskById(taskId)
+        taskByIdCall = characterApi.getTaskById(taskId)
         taskByIdCall?.enqueue(object : Callback<TaskItem> {
             override fun onResponse(call: Call<TaskItem>, response: Response<TaskItem>) {
                 if (!response.isSuccessful) {
@@ -159,7 +162,7 @@ class CharactersViewModel : ViewModel() {
     }
 
     private fun updateTask(task: TaskItem) {
-        updateTaskCall = ApiClient.characterApi.updateTask(task.id, task)
+        updateTaskCall = characterApi.updateTask(task.id, task)
         updateTaskCall?.enqueue(object : Callback<TaskItem> {
             override fun onResponse(call: Call<TaskItem>, response: Response<TaskItem>) {
                 if (!response.isSuccessful) {
@@ -182,7 +185,7 @@ class CharactersViewModel : ViewModel() {
             return
         }
 
-        patchTaskCall = ApiClient.characterApi.patchTask(
+        patchTaskCall = characterApi.patchTask(
             taskId,
             TaskPatchRequest(title = title, description = description)
         )
@@ -204,7 +207,7 @@ class CharactersViewModel : ViewModel() {
     }
 
     private fun deleteTask(taskId: String) {
-        deleteTaskCall = ApiClient.characterApi.deleteTask(taskId)
+        deleteTaskCall = characterApi.deleteTask(taskId)
         deleteTaskCall?.enqueue(object : Callback<Unit> {
             override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
                 if (!response.isSuccessful) {

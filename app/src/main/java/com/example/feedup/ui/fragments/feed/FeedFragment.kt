@@ -9,8 +9,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.feedup.R
 import com.example.feedup.databinding.FragmentFeedBinding
 import com.example.feedup.ui.adapters.CharactersAdapter
+import com.example.feedup.ui.fragments.details.DetailsFragment
 import com.example.feedup.ui.viewmodels.CharactersViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     private var _binding: FragmentFeedBinding? = null
@@ -33,6 +36,8 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         binding.fabCreate.setOnClickListener { viewModel.onCreateClicked() }
 
         observeViewModel()
+
+
 
         binding.getData.setOnClickListener {
 
@@ -116,4 +121,5 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         binding.emptyText.visibility = View.GONE
         binding.errorLayout.visibility = View.VISIBLE
     }
+
 }

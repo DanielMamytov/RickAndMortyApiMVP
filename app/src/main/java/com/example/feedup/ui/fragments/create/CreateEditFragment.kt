@@ -8,7 +8,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.feedup.R
 import com.example.feedup.databinding.FragmentCreateEditBinding
 import com.example.feedup.ui.viewmodels.CharactersViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class CreateEditFragment : Fragment(R.layout.fragment_create_edit) {
 
     private var _binding: FragmentCreateEditBinding? = null

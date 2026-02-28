@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -60,5 +62,13 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.fragment)
+    kapt(libs.hilt.compiler)
+    kapt(libs.androidx.hilt.compiler)
 
+}
+
+kapt {
+    correctErrorTypes = true
 }

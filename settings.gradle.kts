@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "FeedUp"
 include(":app")
- 
+

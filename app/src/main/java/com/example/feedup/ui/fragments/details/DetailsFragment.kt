@@ -8,7 +8,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.feedup.R
 import com.example.feedup.databinding.FragmentDetailsBinding
 import com.example.feedup.ui.viewmodels.CharactersViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DetailsFragment : Fragment(R.layout.fragment_details) {
 
     private var _binding: FragmentDetailsBinding? = null
